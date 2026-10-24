@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encrypt the secret note (local helper)</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:20px;background:#fff6f9;color:#2e1d3d}
+  h1{font-size:1.3rem;color:#ff7597}
+  label{display:block;margin:14px 0 4px;font-weight:600}
+  input,textarea{width:100%;box-sizing:border-box;padding:10px;border:1.5px solid #e6d7f5;border-radius:12px;font:inherit;background:#fff}
+  textarea{min-height:120px}
+  button{margin-top:14px;padding:12px 20px;border:0;border-radius:999px;background:#ff7597;color:#fff;font:600 1rem system-ui;cursor:pointer}
+  #status{margin-top:12px;font-weight:600}
+  .ok{color:#059669}.bad{color:#dc2626}
+  small{color:#7a668c}
+</style>
+</head>
+<body>
+<h1>🌸 Encrypt the secret note</h1>
+<p><small>Runs only in your browser. Nothing is uploaded. Open it through <b>http://localhost:8000/tools/encrypt-note.html</b> (needs localhost or https).</small></p>
+
+<label for="code">Code (digits only, must match <code>secret.length</code> in config.js, default 6)</label>
+<input id="code" inputmode="numeric" maxlength="12" placeholder="e.g. 482915">
+
+<label for="note">Private note</label>
+<textarea id="note" placeholder="Write the note only she should read…"></textarea>
+
+<button id="go">Encrypt</button>
+<div id="status"></div>
+
+<label for="out">Paste this line into <code>js/config.js</code> (replace the old <code>pack: '…'</code> line)</label>
+<textarea id="out" readonly></textarea>
+<button id="copy">Copy</button>
+
+<script>
+const b64 = u8 => btoa(String.fromCharCode(...u8));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+async function deriveKey(pass, salt) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: 200000, hash: 'SHA-256' },
+    base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function encryptNote(pass, text) {
+  const salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveKey(pass, salt);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(text)));
+  return JSON.stringify({ s: b64(salt), i: b64(iv), c: b64(ct) });
+}
+async function decryptNote(pass, pack) {
+  const { s, i, c } = JSON.parse(pack);
+  const key = await deriveKey(pass, unb64(s));
+  return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: unb64(i) }, key, unb64(c)));
+}
+const $ = id => document.getElementById(id), st = $('status');
+$('go').onclick = async () => {
+  const code = $('code').value.trim(), note = $('note').value;
+  st.className = '';
+  if (!window.crypto || !crypto.subtle) { st.textContent = 'Open this page via http://localhost:8000 (not file://).'; st.className = 'bad'; return; }
+  if (!/^\d+$/.test(code)) { st.textContent = 'Code must be digits only.'; st.className = 'bad'; return; }
+  if (!note.trim()) { st.textContent = 'Write a note first.'; st.className = 'bad'; return; }
+  try {
+    const pack = await encryptNote(code, note);
+    const back = await decryptNote(code, pack);           // verify it round-trips
+    if (back !== note) throw new Error('verify failed');
+    $('out').value = "pack: '" + pack + "'";
+    st.textContent = '✓ Encrypted and verified. Code length: ' + code.length + ' digits (set secret.length to ' + code.length + ').';
+    st.className = 'ok';
+  } catch (e) { st.textContent = 'Failed: ' + e.message; st.className = 'bad'; }
+};
+$('copy').onclick = async () => { const v = $('out').value; if (v) { try { await navigator.clipboard.writeText(v); } catch (e) { $('out').select(); document.execCommand('copy'); } } };
+</script>
+</body>
+</html>

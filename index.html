@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Happy Birthday Sumu! ✨🎂</title>
+  <meta name="description" content="A magical tap-to-open birthday story for Sumu.">
+  <meta name="theme-color" content="#fff6f9">
+
+  <!-- Google Fonts: Fredoka & Caveat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Anime.js v4 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.umd.min.js"></script>
+  
+  <link rel="stylesheet" href="css/styles.css?v=9">
+  <link rel="stylesheet" href="css/features.css?v=8">
+</head>
+<body>
+
+  <!-- Ambient Blobs & Dots Parallax Canvas -->
+  <div class="bg-canvas-wrap">
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+  </div>
+
+  <!-- Confetti & Fireworks HTML5 Canvas -->
+  <canvas id="fx-canvas"></canvas>
+
+  <!-- Main Safe-Area Aware Viewport -->
+  <main class="app-viewport">
+
+    <!-- Top Navigation Header -->
+    <header class="app-header">
+      <div class="story-progress" id="storyProgress">
+        <div class="prog-pill active" data-step="0"></div>
+        <div class="prog-pill" data-step="1"></div>
+        <div class="prog-pill" data-step="2"></div>
+        <div class="prog-pill" data-step="3"></div>
+        <div class="prog-pill" data-step="4"></div>
+        <div class="prog-pill" data-step="5"></div>
+        <div class="prog-pill" data-step="6"></div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="themeToggle" title="Toggle Light/Dark Theme" aria-label="Toggle Theme">🌙</button>
+        <button class="icon-btn" id="soundToggle" title="Audio Status" aria-label="Audio Status">🔔</button>
+      </div>
+    </header>
+
+    <!-- Scene Container (Scenes 0 - 5) -->
+    <section class="scenes-container">
+
+      <!-- SCENE 0: COUNTDOWN GATE -->
+      <article class="scene active" id="scene-0">
+        <div class="scene-content" id="gateContent">
+          <div class="gate-badge">Birthday Countdown</div>
+          <h1 class="gate-title" id="gateTitle">Sumu's Special Day</h1>
+          <p class="gate-sub" id="gateSubtitle">Counting down the seconds until midnight...</p>
+
+          <!-- Bouncing Gift Box -->
+          <div class="gift-stage" id="giftBox" role="button" tabindex="0" aria-label="Gift box">
+            <div class="gift-glow"></div>
+            <div class="gift-box-wrap">
+              <div class="gift-box-base">
+                <div class="gift-ribbon-v"></div>
+                <div class="gift-ribbon-h"></div>
+              </div>
+              <div class="gift-box-lid" id="giftLid">
+                <div class="gift-lid-ribbon"></div>
+                <div class="gift-bow">
+                  <div class="bow-loop-l"></div>
+                  <div class="bow-center"></div>
+                  <div class="bow-loop-r"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Countdown Cards -->
+          <div class="countdown-grid" id="countdownGrid">
+            <div class="count-card">
+              <span class="count-num" id="cntDays">00</span>
+              <span class="count-label">Days</span>
+            </div>
+            <div class="count-card">
+              <span class="count-num" id="cntHours">00</span>
+              <span class="count-label">Hours</span>
+            </div>
+            <div class="count-card">
+              <span class="count-num" id="cntMins">00</span>
+              <span class="count-label">Mins</span>
+            </div>
+            <div class="count-card">
+              <span class="count-num" id="cntSecs">00</span>
+              <span class="count-label">Secs</span>
+            </div>
+          </div>
+
+          <!-- Unlocked Button (Visible when unlocked or via #open) -->
+          <div class="unlock-cta-wrap" id="unlockCta">
+            <button class="btn-open-gift" id="btnOpenGift">
+              <span>Tap to Open</span>
+              <span>🎁</span>
+            </button>
+          </div>
+
+          <div class="gate-skip-wrap">
+            <span class="test-skip-hint" id="skipCountdownBtn">Testing? Click here to skip countdown</span>
+          </div>
+        </div>
+
+        <div class="tap-hint-wrap" id="scene0TapHint">
+          <div class="tap-hint">
+            <span class="tap-icon">👆</span>
+            <span>Tap the gift to open</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- SCENE 1: ANIMATED MEMORY RIBBON -->
+      <article class="scene" id="scene-1">
+        <div class="scene-content scene-content-fill">
+          <div class="memory-ribbon-stage">
+            <p class="memory-ribbon-kicker">A little walk through our memories</p>
+            <h2 class="memory-ribbon-title">Every moment tells a story</h2>
+            <p class="memory-ribbon-copy">Snapshots from the pic folder, floating together like a memory film.</p>
+            <div class="memory-ribbon" id="memoryRibbon" aria-label="Animated memory snapshots">
+              <!-- Memory cards are injected from CONFIG.memories. -->
+            </div>
+          </div>
+        </div>
+
+        <div class="tap-hint-wrap">
+          <div class="tap-hint" id="scene1Prompt">
+            <span class="tap-icon">👆</span>
+            <span>Tap anywhere to continue</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- SCENE 2: NAME + AGE CELEBRATION -->
+      <article class="scene" id="scene-2">
+        <div class="scene-content">
+          <div class="scene2-wrap">
+            <!-- Balloons Container -->
+            <div class="balloons-canvas" id="balloonsContainer"></div>
+
+            <div class="b-top-title">HAPPY BIRTHDAY</div>
+
+            <!-- Sumu Letters -->
+            <div class="name-letters-wrap" id="nameLetters">
+              <span class="letter-bubble lb-1">S</span>
+              <span class="letter-bubble lb-2">u</span>
+              <span class="letter-bubble lb-3">m</span>
+              <span class="letter-bubble lb-4">u</span>
+              <span class="letter-bubble lb-5">!</span>
+            </div>
+
+            <!-- Age Count-up Card -->
+            <div class="age-badge-card" id="ageBadgeCard">
+              <div class="age-pill-tag">Celebrating</div>
+              <div class="age-num-display">
+                <span id="ageCounter">0</span>
+                <span class="age-unit">✨</span>
+              </div>
+              <div class="age-tagline" id="ageTagline">Years of sunshine, kindness & smiles!</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tap-hint-wrap">
+          <div class="tap-hint">
+            <span class="tap-icon">📸</span>
+            <span>Tap anywhere for memories</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- SCENE 3: MEMORIES POLAROID GALLERY -->
+      <article class="scene" id="scene-3">
+        <div class="scene-content">
+          <div class="memories-stage" id="memoriesStage">
+            <!-- Polaroid cards will be injected by JavaScript -->
+          </div>
+        </div>
+
+        <div class="tap-hint-wrap">
+          <div class="tap-hint" id="memoriesTapHint">
+            <span class="tap-icon">👆</span>
+            <span>Tap anywhere to flip memory</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- SCENE 4: FUTURE DOCTOR (ECG, BEATING HEART & PRESCRIPTION) -->
+      <article class="scene" id="scene-4">
+        <div class="scene-content">
+          <div class="doctor-stage">
+            
+            <!-- ECG Card -->
+            <div class="ecg-card">
+              <div class="ecg-header">
+                <span>VITALS MONITOR • DR. SUMU</span>
+                <span>100 BPM</span>
+              </div>
+              <div class="ecg-svg-wrap">
+                <svg id="ecg-svg" viewBox="0 0 320 80">
+                  <defs>
+                    <linearGradient id="ecgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stop-color="#34d399" />
+                      <stop offset="60%" stop-color="#ff7597" />
+                      <stop offset="100%" stop-color="#a78bfa" />
+                    </linearGradient>
+                  </defs>
+                  <!-- Hand-crafted realistic P-Q-R-S-T wave with baseline -->
+                  <path id="ecgPath" d="M 0,45 L 35,45 C 42,45 46,36 53,36 C 60,36 64,45 71,45 L 85,45 L 90,52 L 98,12 L 106,68 L 111,45 L 126,45 C 136,45 142,28 152,28 C 162,28 168,45 178,45 L 205,45 L 210,52 L 218,12 L 226,68 L 231,45 L 246,45 C 256,45 262,30 272,30 C 280,30 286,45 295,45 L 310,45"
+                        fill="none" stroke="url(#ecgGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                <div class="beating-heart-wrap">
+                  <svg class="beating-heart-svg" id="beatingHeart" viewBox="0 0 24 24">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Prescription Pad (Rx Pad) -->
+            <div class="rx-card" id="rxCard">
+              <div class="rx-clinic-title">
+                <span>🩺 SWEET CARE CLINIC</span>
+              </div>
+              <div class="rx-clinic-sub">Department of Miracles & Lifelong Happiness</div>
+              
+              <div class="rx-meta-row">
+                <span><strong>Patient:</strong> Sumu</span>
+                <span><strong>Date:</strong> 25 Oct 2026</span>
+              </div>
+              <div class="rx-meta-row">
+                <span><strong>First consultation:</strong> <span id="rxFirstVisit"></span></span>
+              </div>
+
+              <div class="rx-symbol">℞</div>
+
+              <div class="rx-item">
+                <strong>1. Joy & Laughter (1000mg):</strong> Take daily with smiles.
+              </div>
+              <div class="rx-item">
+                <strong>2. Stethoscope & MD Dreams:</strong> Unlimited refills.
+              </div>
+              <div class="rx-item">
+                <strong>3. Stress & Doubt:</strong> 0mg (Strictly forbidden).
+              </div>
+
+              <div class="rx-footer">
+                <div>Refills: UNLIMITED FOR LIFE</div>
+                <div class="rx-sig">Dr. Destiny ✨</div>
+              </div>
+
+              <!-- Slammed Stamp -->
+              <div class="dr-stamp" id="drStamp">FUTURE DR. SUMU ✓</div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="tap-hint-wrap">
+          <div class="tap-hint">
+            <span class="tap-icon">🎂</span>
+            <span>Tap anywhere to make a wish</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- SCENE 5: BIRTHDAY WISH, CAKE CUT & PERSONAL LETTER (SECTION 6) -->
+      <article class="scene" id="scene-5">
+        <div class="scene-content">
+          <div class="finale-stage" id="finaleStage">
+            <header class="wish-heading">
+              <span class="finale-kicker">06 · THE BIRTHDAY WISH</span>
+              <h2>Make a wish, Sumu</h2>
+              <p id="wishInstruction">Take a breath, then blow gently toward the candles.</p>
+            </header>
+
+            <div class="cake-scene" id="cakeScene">
+              <div class="cake-halo" aria-hidden="true"></div>
+              <span class="cake-sparkle sparkle-one" aria-hidden="true">✦</span>
+              <span class="cake-sparkle sparkle-two" aria-hidden="true">✧</span>
+              <span class="cake-sparkle sparkle-three" aria-hidden="true">✦</span>
+
+              <!-- Three tiers, shaded to give the cake a soft 3D finish. -->
+              <div class="cake-container" id="cakeStage" role="img" aria-label="A three-tier birthday cake with five lit candles">
+                <div class="candles-row" aria-label="Five birthday candles">
+                  <div class="candle c-1" data-candle="1" aria-label="Candle one"><div class="candle-wick"></div><div class="candle-flame"></div><div class="candle-smoke"></div></div>
+                  <div class="candle c-2" data-candle="2" aria-label="Candle two"><div class="candle-wick"></div><div class="candle-flame"></div><div class="candle-smoke"></div></div>
+                  <div class="candle c-3" data-candle="3" aria-label="Candle three"><div class="candle-wick"></div><div class="candle-flame"></div><div class="candle-smoke"></div></div>
+                  <div class="candle c-4" data-candle="4" aria-label="Candle four"><div class="candle-wick"></div><div class="candle-flame"></div><div class="candle-smoke"></div></div>
+                  <div class="candle c-5" data-candle="5" aria-label="Candle five"><div class="candle-wick"></div><div class="candle-flame"></div><div class="candle-smoke"></div></div>
+                </div>
+
+                <div class="cake-tier-1"><div class="tier-drips"></div><span class="cake-berry berry-one"></span><span class="cake-berry berry-two"></span><span class="cake-berry berry-three"></span></div>
+                <div class="cake-tier-2"><div class="tier-drips"></div><span class="cake-sprinkles"></span></div>
+                <div class="cake-tier-3"><div class="tier-drips"></div><span class="cake-sprinkles"></span></div>
+                <div class="cake-pedestal"><span>HAPPY BIRTHDAY</span></div>
+                <div class="cake-cut-line" aria-hidden="true"></div>
+                <div class="cake-slice" aria-hidden="true"><span></span></div>
+                <span class="cake-knife" id="cakeKnife" aria-hidden="true">🗡️</span>
+              </div>
+              <div class="cake-table-shadow" aria-hidden="true"></div>
+            </div>
+
+            <div class="cake-control-panel">
+              <div class="mic-status-box" id="micStatusBox">
+                <span class="mic-status-icon" aria-hidden="true">🎙️</span>
+                <span id="micStatusText" role="status" aria-live="polite">Enable your microphone, then blow gently to make a wish.</span>
+                <span class="mic-wave-indicator" id="micWaveWrap" aria-hidden="true">
+                  <span class="wave-bar" id="wb1"></span><span class="wave-bar" id="wb2"></span>
+                  <span class="wave-bar" id="wb3"></span><span class="wave-bar" id="wb4"></span>
+                </span>
+              </div>
+              <div class="finale-actions">
+                <button class="finale-button mic-button" id="micToggleBtn" type="button" aria-pressed="false">🎙️ Enable microphone</button>
+                <button class="finale-button manual-blow-button" id="manualBlowBtn" type="button" hidden>🕯️ Blow out the candles</button>
+                <button class="finale-button cut-cake-button" id="cutCakeBtn" type="button" hidden>🗡️ Cut the cake</button>
+              </div>
+              <p class="mic-note">Microphone access is used only to listen for your birthday wish.</p>
+            </div>
+          </div>
+
+          <!-- Personal Letter Modal / Unfolding Envelope -->
+          <div class="letter-modal" id="letterModal">
+            <div class="letter-stamp-top">
+              <span>SPECIAL DELIVERY FOR SUMU</span>
+              <span>OCTOBER 25, 2026 💌</span>
+            </div>
+
+            <div class="letter-body" id="letterText">
+              <!-- CONFIG.letter will be populated here -->
+            </div>
+
+            <div class="letter-actions">
+              <button class="btn-action btn-melody" id="btnReplayMelody">
+                <span>🎵 Replay Melody</span>
+              </button>
+              <button class="btn-action btn-continue" id="btnContinueLetter">
+                <span>💌 Continue</span>
+              </button>
+              <button class="btn-action btn-restart" id="btnRestartStory">
+                <span>↺ Relive Magic</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="tap-hint-wrap" id="scene5TapHint">
+          <div class="tap-hint">
+            <span class="tap-icon">🎂</span>
+            <span>Blow gently toward the microphone to make a wish</span>
+          </div>
+        </div>
+      </article>
+
+      <!-- SCENE 6: WHERE'S MY GIFT? ANIMATED CHAT -->
+      <article class="scene" id="scene-6">
+        <div class="scene-content gift-chat-scene">
+          <div class="gift-chat-card">
+            <header class="gift-chat-header">
+              <div class="gift-chat-user">
+                <div class="gift-avatar-mini">S</div>
+                <div>
+                  <div class="gift-chat-name" id="giftChatName">Sumu</div>
+                  <div class="gift-chat-status" id="giftChatStatus">online</div>
+                </div>
+              </div>
+            </header>
+
+            <div class="gift-chat-list" id="giftChatList"></div>
+
+            <div class="gift-mood-wrap">
+              <span class="gift-mood-label">Mood</span>
+              <div class="gift-mood-avatar" id="giftMoodAvatar">😡</div>
+            </div>
+
+            <div class="gift-scene-actions">
+              <section class="birthday-gift-card" id="birthdayGiftCard" hidden aria-live="polite">
+                <div class="birthday-gift-art">
+                  <img id="birthdayGiftArt" src="assets/gifts/birthday-gift-card-v2.jpeg" alt="Pastel pink and gold birthday gift card" draggable="false">
+                </div>
+                <div class="gift-code-panel">
+                  <span class="gift-code-label">Your birthday gift code</span>
+                  <code id="giftClaimCode">Gift code will be added privately</code>
+                  <p id="birthdayGiftMessage">A little something chosen just for you. I hope it makes your birthday feel even more beautiful. 💗</p>
+                </div>
+                <button class="claim-gift-btn" id="claimGiftBtn" type="button">Claim &amp; copy gift code ✨</button>
+              </section>
+
+              <button class="secret-flower" id="secretFlower" type="button" aria-label="A little secret">🌸</button>
+
+              <button class="gift-continue-btn" id="giftContinueBtn" type="button" hidden>Relive the magic ↺</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="tap-hint-wrap">
+          <div class="tap-hint">
+            <span class="tap-icon">💌</span>
+            <span>Tap to fast-forward the chat</span>
+          </div>
+        </div>
+      </article>
+
+    </section>
+
+  </main>
+
+  <!-- Secret memory lock stays outside the scenes so scene taps never reach it. -->
+  <div class="secret-lock" id="secretLock">
+    <div class="lock-card">
+      <button class="lock-x" id="secretClose" type="button" aria-label="Close">✕</button>
+      <div id="lockKeyArea">
+        <div class="lock-title">🌸 Just for you</div>
+        <div class="lock-hint" id="lockHint"></div>
+        <div class="lock-dots" id="lockDots"></div>
+        <div class="lock-keypad" id="lockKeypad"></div>
+      </div>
+      <div class="secret-note" id="secretNote">
+        <div class="secret-note-tag">FOR SUMU ONLY</div>
+        <div class="secret-note-text" id="secretNoteText"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/config.js?v=11"></script>
+  <script src="js/script.js?v=12"></script>
+  <script src="js/features.js?v=4"></script>
+</body>
+</html>
