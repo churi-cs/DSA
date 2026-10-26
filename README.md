@@ -1,4 +1,4 @@
-# Happy Birthday Sumu
+# Happy Birthday SAS
 
 A mobile-first birthday story built with plain HTML, CSS, and JavaScript. The only local requirement is Python 3 for the preview server.
 
